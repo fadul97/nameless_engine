@@ -1,0 +1,10 @@
+#include "error_list.h"
+
+const char *error_names[] = {
+    "OK",
+    "ERR_WINDOW",
+    "ERR_INPUT",
+    "ERR_GC",
+    "ERR_RENDERER",
+    "ERR_END"
+};
