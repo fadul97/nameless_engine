@@ -9,6 +9,8 @@
 #include <time.h>
 #include <X11/Xutil.h>
 
+#include "input_x11.h"
+
 class WindowX11
 {
 private:
@@ -24,6 +26,8 @@ private:
     i16 width;
     i16 height;
     b8 running;
+
+    InputX11* input;
 
 public:
     WindowX11();

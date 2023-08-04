@@ -17,6 +17,7 @@ WindowX11::WindowX11()
     x_window_attribs = {0};
     visual = {0};
     delete_msg = 0;
+    input = new InputX11();
 
     title = "";
     width = 0;
@@ -118,6 +119,7 @@ void WindowX11::run()
     XEvent ev;
     char str[25];
     KeySym keysym;
+    Keys key;
 
     while(running)
     {
@@ -130,15 +132,54 @@ void WindowX11::run()
             {
                 case ButtonRelease:
                 case ButtonPress: {
+                    b8 button_pressed = ev.type == ButtonPress;
+                    Buttons mouse_button = MAX_BUTTONS;
+                    switch(ev.xbutton.button)
+                    {
+                        case 1:
+                            mouse_button = BUTTON_LEFT;
+                            std::cout << "BUTTON_LEFT clicked!\n";
+                            break;
+                        case 2:
+                            mouse_button = BUTTON_MIDDLE;
+                            std::cout << "BUTTON_MIDDLE clicked!\n";
+                            break;
+                        case 3:
+                            mouse_button = BUTTON_RIGHT;
+                            std::cout << "BUTTON_RIGHT clicked!\n";
+                            break;
+                    }
+                    if(mouse_button != MAX_BUTTONS)
+                    {
+                        input->process_button(mouse_button, button_pressed);
+                        input->update();
+                    }
                 } break;
 
                 case KeyRelease:
                 case KeyPress:{
+                    u32 len = XLookupString(&ev.xkey, str, 25, &keysym, NULL);
+                    if(len > 0){
+                        b8 pressed = ev.type == KeyPress;
+                        key = input->translate_keycode(keysym);
+                        input->process_key(key, pressed);
+                        input->update();
+
+                        if(key == KEY_SPACE)
+                            std::cout << "KEY_SPACE clicked!\n";
+                        
+                        if(key == KEY_ENTER)
+                            std::cout << "KEY_ENTER clicked!\n";
+
+                        if(key == KEY_ESCAPE)
+                            running = false;
+                    }
                 } break;
                 case LeaveNotify:
                 case EnterNotify:
                     break;
                 case MotionNotify: {
+                    input->update_mouse_position(ev.xmotion.x, ev.xmotion.y);
                 } break;
                 case ConfigureNotify:
                     break;
