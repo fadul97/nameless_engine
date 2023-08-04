@@ -1,3 +1,7 @@
 project(NamelessEngine)
 
-add_executable(NamelessEngine main.cpp error_list.c)
+add_executable(NamelessEngine main.cpp gl.c error_list.c window_x11.cpp context_gl.cpp)
+
+if(UNIX)
+	target_link_libraries(NamelessEngine -lX11 -lGL)
+endif()
