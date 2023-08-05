@@ -5,7 +5,7 @@
 int main()
 {
     auto engine = new NamelessEngine();
-    b8 result = engine->init("JOJ Engine", 400, 400);
+    b8 result = engine->init("JOJ Engine", 800, 600);
     if(result != OK)
     {
         std::cout << "Failed to initalize engine - " << "[" << error_names[result] << "]\n";
