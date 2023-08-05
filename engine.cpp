@@ -136,9 +136,6 @@ void NamelessEngine::run(App* app)
         app->update(1.0f);
 
         app->draw();
-
-        glClearColor(0.1, 0.2, 0.9, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
        
         glXSwapBuffers(window->get_display(), window->get_id());
 
