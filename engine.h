@@ -8,6 +8,7 @@
 #include "window_x11.h"
 #include "context_gl.h"
 #include "input_x11.h"
+#include "app.h"
 
 class NamelessEngine
 {
@@ -21,7 +22,7 @@ public:
     ~NamelessEngine();
 
     b8 init(const char* title, i16 width, i16 height);
-    void run();
+    void run(App* app);
     void shutdown();
 };
 

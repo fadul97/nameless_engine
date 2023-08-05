@@ -51,12 +51,15 @@ b8 NamelessEngine::init(const char* title, i16 width, i16 height)
     return OK;
 }
 
-void NamelessEngine::run()
+void NamelessEngine::run(App* app)
 {
     XEvent ev;
     char str[25];
     KeySym keysym;
     Keys key;
+
+    app->set_input(input);
+    app->init();
 
     while(window->is_running())
     {
@@ -130,6 +133,10 @@ void NamelessEngine::run()
             }
         }
 
+        app->update(1.0f);
+
+        app->draw();
+
         glClearColor(0.1, 0.2, 0.9, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
        
@@ -141,6 +148,8 @@ void NamelessEngine::run()
         if (XPending(window->get_display()) == 0)
             usleep(1000); 
     }
+
+    app->shutdown();
 
     XFlush(window->get_display());
 }

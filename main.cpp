@@ -2,6 +2,22 @@
 #include "error_list.h"
 #include <iostream>
 
+class Tst : public App
+{
+private:
+	
+public:
+	void init();
+	void update(f32 delta_time);
+	void draw();
+	void shutdown();
+};
+
+void Tst::init(){}
+void Tst::update(f32 delta_time){}
+void Tst::draw(){}
+void Tst::shutdown(){}
+
 int main()
 {
     auto engine = new NamelessEngine();
@@ -13,7 +29,7 @@ int main()
     }
     
     // Main loop
-    engine->run();
+    engine->run(new Tst());
     
     engine->shutdown();
 
