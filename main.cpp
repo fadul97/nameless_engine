@@ -1,43 +1,23 @@
-#include "defines.h"
-#include <iostream>
+#include "engine.h"
 #include "error_list.h"
-#include "window_x11.h"
-#include "context_gl.h"
+#include <iostream>
 
 int main()
 {
-    WindowX11* window = new WindowX11();
-    GLContext* context = new GLContext(*window);
-
-    int result = window->init();
+    auto engine = new NamelessEngine();
+    b8 result = engine->init("JOJ Engine", 400, 400);
     if(result != OK)
     {
-        std::cout << "Failed to initalize window - " << "[" << error_names[result] << "]\n";
+        std::cout << "Failed to initalize engine - " << "[" << error_names[result] << "]\n";
         return result;
     }
-
-    result = context->create();
-    if(result != OK)
-    {
-        std::cout << "Failed to create context - " << "[" << error_names[result] << "]\n";
-        return result;
-    }
-
-    result = window->create();
-    if(result != OK)
-    {
-        std::cout << "Failed to create window - " << "[" << error_names[result] << "]\n";
-        return result;
-    }
-
-    context->make_current();
-    window->show();
-
-    // Main loop
-    window->run();
     
-    context->destroy();
-    window->destroy();
+    // Main loop
+    engine->run();
+    
+    engine->shutdown();
 
+    delete engine;
+    
     return 0;
 }

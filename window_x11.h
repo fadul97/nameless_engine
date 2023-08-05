@@ -43,6 +43,9 @@ public:
     u32 get_id() const;
     i32 get_screen_id() const;
     XVisualInfo* get_visual() const;
+    ul32 get_delete_msg() const;
+    b8 is_running() const;
+    void set_running(b8 value);
     void set_visual(XVisualInfo* visual);
 };
 
@@ -57,6 +60,15 @@ inline i32 WindowX11::get_screen_id() const
 
 inline XVisualInfo* WindowX11::get_visual() const
 { return visual; }
+
+inline ul32 WindowX11::get_delete_msg() const
+{ return delete_msg; }
+
+inline b8 WindowX11::is_running() const
+{ return running; }
+
+inline void WindowX11::set_running(b8 value)
+{ running = value; }
 
 inline void WindowX11::set_visual(XVisualInfo* visual)
 { this->visual = visual; }
