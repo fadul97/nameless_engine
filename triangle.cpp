@@ -2,13 +2,10 @@
 
 #include <iostream>
 
-float Triangle::vertices[18] = {
-         0.5f, 0.8f, 0.0f,
-         0.8f, 0.3f, 0.0f,
-         0.2f, 0.3f, 0.0f,
-        -0.5f, 0.8f, 0.0f,
-        -0.2f, 0.3f, 0.0f,
-        -0.8f, 0.3f, 0.0f,
+f32 Triangle::vertices[9] = {
+         0.0f,  0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
 };
 
 Triangle::Triangle()
@@ -40,7 +37,7 @@ void Triangle::init()
                                "\n"
                                "void main()\n"
                                "{\n"
-                               "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                               "    FragColor = vec4(0.8f, 0.8f, 0.3f, 1.0f);\n"
                                "}\0";
 
     m_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -83,7 +80,7 @@ void Triangle::init()
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float ), (void*)nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(f32), (void*)nullptr);
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
@@ -98,9 +95,12 @@ void Triangle::update(f32 delta_time)
 
 void Triangle::draw()
 {
+    glClearColor(0.2f, 0.5f, 0.9f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     glUseProgram(m_shader_program);
     glBindVertexArray(m_vao);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void Triangle::shutdown()

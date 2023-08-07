@@ -22,7 +22,7 @@ private:
     int m_success;
     char m_info_log[512]{};
 
-    static float vertices[18];
+    static f32 vertices[9];
 	
 public:
     Triangle();
