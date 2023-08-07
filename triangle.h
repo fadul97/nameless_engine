@@ -5,22 +5,29 @@
 
 #include "app.h"
 #include "engine.h"
+#include "c_math.h"
 
 class Triangle : public App
 {
 private:
-    const char* m_vertex_shader_source;
-    const char* m_fragment_shader_source;
+    f32 x;
+    f32 y;
+    Mat4 translation;
+    Mat4 rotation;
+    Mat4 scale;
 
-    u32 m_vertex_shader;
-    u32 m_fragment_shader;
-    u32 m_shader_program;
+    const char* vertex_shader_source;
+    const char* fragment_shader_source;
 
-    u32 m_vbo;
-    u32 m_vao;
+    u32 vertex_shader;
+    u32 fragment_shader;
+    u32 shader_program;
 
-    int m_success;
-    char m_info_log[512]{};
+    u32 vbo;
+    u32 vao;
+
+    int success;
+    char info_log[512]{};
 
     static f32 vertices[9];
 	
