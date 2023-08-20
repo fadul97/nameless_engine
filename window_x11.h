@@ -29,12 +29,15 @@ private:
 
     InputX11* input;
 
+    GC gc;
+
 public:
     WindowX11();
     ~WindowX11();
 
     b8 init();
     b8 create(const char* title = "", i16 width = 800, i16 height = 600);
+    b8 init_create_glx_window(const char* title = "", i16 width = 800, i16 height = 600);
     void show();
     void run();
     void destroy();
@@ -44,6 +47,7 @@ public:
     i32 get_screen_id() const;
     XVisualInfo* get_visual() const;
     ul32 get_delete_msg() const;
+    const GC& get_context() const;
     b8 is_running() const;
     void set_running(b8 value);
     void set_visual(XVisualInfo* visual);
@@ -63,6 +67,9 @@ inline XVisualInfo* WindowX11::get_visual() const
 
 inline ul32 WindowX11::get_delete_msg() const
 { return delete_msg; }
+
+inline const GC& WindowX11::get_context() const
+{ return gc; }
 
 inline b8 WindowX11::is_running() const
 { return running; }

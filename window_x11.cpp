@@ -23,6 +23,8 @@ WindowX11::WindowX11()
     width = 0;
     height = 0;
     running = false;
+
+    gc = {0};
 }
 
 WindowX11::~WindowX11()
@@ -59,6 +61,10 @@ b8 WindowX11::create(const char* title, i16 width, i16 height)
                                 | EnterWindowMask | LeaveWindowMask | PointerMotionMask
                                 | FocusChangeMask;
     
+    this->width = width;
+    this->height = height;
+    this->title = title;
+
     // Create window
     id = XCreateWindow(
             display,
@@ -76,7 +82,7 @@ b8 WindowX11::create(const char* title, i16 width, i16 height)
     
     if(id == 0)
     {
-        std::cout << "Failed to create window\n";
+        std::cout << "Failed to create window.\n";
         XCloseDisplay(display);
         return ERR_WINDOW;
     }
@@ -94,6 +100,66 @@ b8 WindowX11::create(const char* title, i16 width, i16 height)
     // Redirect Close
 	delete_msg = XInternAtom(display, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(display, id, &delete_msg, 1);
+
+    return OK;
+}
+
+b8 WindowX11::init_create_glx_window(const char* title, i16 width, i16 height)
+{
+    // Open display
+    display = XOpenDisplay(NULL);
+    if(display == NULL)
+    {
+        std::cout << "Failed to open display\n";
+        return ERR_WINDOW;
+    }
+
+    screen_id = DefaultScreen(display);
+
+    ul32 black = BlackPixel(display, 0);
+    ul32 white = WhitePixel(display, 0);
+    // ul32 red = RGB(255, 0, 0);
+    // ul32 blue = RGB(0, 0, 255);
+
+    id = XCreateSimpleWindow(
+        display,
+        DefaultRootWindow(display),
+        0, 0,
+        width, height,
+        5,
+        white,
+        black);
+
+    if(id == 0)
+    {
+        std::cout << "Failed to create window.\n";
+        XCloseDisplay(display);
+        return ERR_WINDOW;
+    }
+
+    this->width = width;
+    this->height = height;
+    this->title = title;
+
+    XStoreName(display, id, title);
+
+    XSelectInput(display, id,
+                ExposureMask | KeyPressMask | KeyReleaseMask | KeymapStateMask
+                | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask
+                | EnterWindowMask | LeaveWindowMask | PointerMotionMask
+                | FocusChangeMask);
+
+    gc = XCreateGC(display, id, 0, 0);
+
+    XSetBackground(display, gc, white);
+    XSetForeground(display, gc, white);
+
+    // Redirect Close
+    delete_msg = XInternAtom(display, "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(display, id, &delete_msg, 1);
+
+    XClearWindow(display, id);
+    XMapRaised(display, id);
 
     return OK;
 }

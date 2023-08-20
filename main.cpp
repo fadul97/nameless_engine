@@ -3,7 +3,7 @@
 
 int main()
 {
-    auto engine = new NamelessEngine();
+    auto engine = new NamelessEngine(RENDERER_GLX);
     b8 result = engine->init("JOJ Engine", 800, 600);
     if(result != OK)
     {
@@ -11,6 +11,7 @@ int main()
         return result;
     }
     
+    std::cout << "It kinda worked.\n";
     // Main loop
     engine->run(new Triangle());
     

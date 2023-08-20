@@ -25,28 +25,42 @@ b8 NamelessEngine::init(const char* title, i16 width, i16 height)
     context = new GLContext(*window);
     input = new InputX11();
 
-    b8 result = window->init();
-    if(result != OK)
+    b8 result;
+    if(backend_rederer == RENDERER_OPENGL)
     {
-        std::cout << "Failed to initalize window - " << "[" << error_names[result] << "]\n";
-        return result;
+        result = window->init();
+        if(result != OK)
+        {
+            std::cout << "Failed to initialize window - " << "[" << error_names[result] << "]\n";
+            return result;
+        }
+
+        result = context->create();
+        if(result != OK)
+        {
+            std::cout << "Failed to create context - " << "[" << error_names[result] << "]\n";
+            return result;
+        }
+
+        result = window->create(title, width, height);
+        if(result != OK)
+        {
+            std::cout << "Failed to create window - " << "[" << error_names[result] << "]\n";
+            return result;
+        }
+        
+        context->make_current();
+    }
+    else
+    {
+        result = window->init_create_glx_window(title, width, height);
+        if(result != OK)
+        {
+            std::cout << "Failed to initialize and create glx window - " << "[" << error_names[result] << "]\n";
+            return result;
+        }
     }
 
-    result = context->create();
-    if(result != OK)
-    {
-        std::cout << "Failed to create context - " << "[" << error_names[result] << "]\n";
-        return result;
-    }
-
-    result = window->create(title, width, height);
-    if(result != OK)
-    {
-        std::cout << "Failed to create window - " << "[" << error_names[result] << "]\n";
-        return result;
-    }
-
-    context->make_current();
     window->show();
 
     return OK;
@@ -137,8 +151,11 @@ void NamelessEngine::run(App* app)
         app->update(1.0f);
 
         app->draw();
+
+        XSetForeground(window->get_display(), window->get_context(), (66UL << 16) | (165UL << 8) | 245UL);
+        XDrawLine(window->get_display(), window->get_id(), window->get_context(), 10, 50, 50, 150);
        
-        glXSwapBuffers(window->get_display(), window->get_id());
+        // glXSwapBuffers(window->get_display(), window->get_id());
 
         // If we sync, it will take 2 esc key presses to close window
         //      -> It takes longer to recognize key press

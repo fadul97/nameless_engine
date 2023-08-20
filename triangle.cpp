@@ -32,6 +32,7 @@ Triangle::Triangle()
 
 void Triangle::init()
 {
+    /*
     vertex_shader_source = "#version 330 core\n"
                              "layout (location = 0) in vec3 aPos;\n"
                              "uniform mat4 translation;"
@@ -96,10 +97,12 @@ void Triangle::init()
     glBindVertexArray(0);
 
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    */
 }
 
 void Triangle::update(f32 delta_time)
 {
+    /*
     translation = mat4_identity();
 
     f32 speed = 0.01f;
@@ -114,10 +117,12 @@ void Triangle::update(f32 delta_time)
         x -= speed * delta_time;
     
     translation = mat4_translate(translation, vec3_create(x, y, 0.0f));
+    */
 }
 
 void Triangle::draw()
 {
+    /*
     glClearColor(0.2f, 0.5f, 0.9f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -126,11 +131,14 @@ void Triangle::draw()
     u32 transformLoc = glGetUniformLocation(shader_program, "translation");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, translation.data);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    */
 }
 
 void Triangle::shutdown()
 {
+    /*
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     glDeleteProgram(shader_program);
+    */
 }
