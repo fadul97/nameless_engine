@@ -4,11 +4,12 @@
 #include "error_list.h"
 #include <unistd.h>
 
-NamelessEngine::NamelessEngine()
+NamelessEngine::NamelessEngine(BackendRenderer backend_renderer)
 {
     window = nullptr;
     context = nullptr;
     input = nullptr;
+    this->backend_rederer = backend_rederer;
 }
 
 NamelessEngine::~NamelessEngine()

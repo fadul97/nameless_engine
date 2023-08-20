@@ -1,5 +1,4 @@
 #include "triangle.h"
-#include "error_list.h"
 #include <iostream>
 
 int main()
@@ -8,7 +7,7 @@ int main()
     b8 result = engine->init("JOJ Engine", 800, 600);
     if(result != OK)
     {
-        std::cout << "Failed to initalize engine - " << "[" << error_names[result] << "]\n";
+        std::cout << "Failed to initalize engine.\n";
         return result;
     }
     

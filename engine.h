@@ -8,7 +8,14 @@
 #include "window_x11.h"
 #include "context_gl.h"
 #include "input_x11.h"
+#include "error_list.h"
 #include "app.h"
+
+typedef enum
+{
+    RENDERER_GLX,
+    RENDERER_OPENGL
+} BackendRenderer;
 
 class NamelessEngine
 {
@@ -16,9 +23,11 @@ private:
     WindowX11* window;
     GLContext* context;
     InputX11* input;
+
+    BackendRenderer backend_rederer;
     
 public:
-    NamelessEngine();
+    NamelessEngine(BackendRenderer backend_renderer = RENDERER_OPENGL);
     ~NamelessEngine();
 
     b8 init(const char* title, i16 width, i16 height);
