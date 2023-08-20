@@ -284,7 +284,26 @@ INLINE b8 vec3_is_equal(Vec3 a, Vec3 b)
 INLINE void vec3_print(Vec3 a)
 { printf("(%f, %f, %f)", a.x, a.y, a.z); }
 
-INLINE Vec4 mat4_mult_vec3(Mat4 a, Vec4 b)
+// FIXME: Check calculations, make it similar to mat4_mult_vec4
+INLINE Vec3 mat4_mult_vec3(Mat4 a, Vec3 b)
+{
+    Vec3 v;
+
+    // printf("%.2f*%.2f + %.2f*%.2f + %.2f*%.2f + %.2f*%.2f\n",
+        // a.data[0] , b.x , a.data[1] , b.y , a.data[2] , b.z , a.data[3] , b.w);
+    v.x = a.data[0] * b.x + a.data[4] * b.y + a.data[8]  * b.z + a.data[12];
+    v.y = a.data[1] * b.x + a.data[5] * b.y + a.data[9]  * b.z + a.data[13];
+    v.z = a.data[2] * b.x + a.data[6] * b.y + a.data[10] * b.z + a.data[14];
+
+    f32 w = a.data[3] * b.x + a.data[7] * b.y + a.data[11] * b.z + a.data[15];
+
+    if(w != 0.0f)
+        v = vec3_divide_by_scalar(v, w);
+
+    return v;
+}
+
+INLINE Vec4 mat4_mult_vec4(Mat4 a, Vec4 b)
 {
     Vec4 v;
 
