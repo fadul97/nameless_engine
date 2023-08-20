@@ -7,6 +7,7 @@
 
 #include "window_x11.h"
 #include "context_gl.h"
+#include "renderer_x11.h"
 #include "input_x11.h"
 #include "error_list.h"
 #include "app.h"
@@ -25,6 +26,7 @@ private:
     InputX11* input;
 
     BackendRenderer backend_rederer;
+    RendererX11* renderer;
     
 public:
     NamelessEngine(BackendRenderer backend_renderer = RENDERER_OPENGL);

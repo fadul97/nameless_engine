@@ -48,6 +48,9 @@ public:
     XVisualInfo* get_visual() const;
     ul32 get_delete_msg() const;
     const GC& get_context() const;
+    const i16& get_width() const;
+    const i16& get_height() const;
+
     b8 is_running() const;
     void set_running(b8 value);
     void set_visual(XVisualInfo* visual);
@@ -70,6 +73,12 @@ inline ul32 WindowX11::get_delete_msg() const
 
 inline const GC& WindowX11::get_context() const
 { return gc; }
+
+inline const i16& WindowX11::get_width() const
+{ return width; }
+
+inline const i16& WindowX11::get_height() const
+{ return height; }
 
 inline b8 WindowX11::is_running() const
 { return running; }

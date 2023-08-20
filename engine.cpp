@@ -10,6 +10,7 @@ NamelessEngine::NamelessEngine(BackendRenderer backend_renderer)
     context = nullptr;
     input = nullptr;
     this->backend_rederer = backend_rederer;
+    renderer = nullptr;
 }
 
 NamelessEngine::~NamelessEngine()
@@ -24,6 +25,7 @@ b8 NamelessEngine::init(const char* title, i16 width, i16 height)
     window = new WindowX11();
     context = new GLContext(*window);
     input = new InputX11();
+    renderer = new RendererX11(window);
 
     b8 result;
     if(backend_rederer == RENDERER_OPENGL)
@@ -169,10 +171,9 @@ void NamelessEngine::run(App* app)
             y -= v;
         else
             y += v;
-
-        XSetForeground(window->get_display(), window->get_context(), (66UL << 16) | (165UL << 8) | 245UL);
-        XDrawLine(window->get_display(), window->get_id(), window->get_context(), 10, y, 50, 150);
        
+        renderer->draw_line(10, y, 50, 150, (66UL << 16) | (165UL << 8) | 245UL);
+
         // glXSwapBuffers(window->get_display(), window->get_id());
 
         // If we sync, it will take 2 esc key presses to close window
