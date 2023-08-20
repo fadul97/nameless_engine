@@ -87,6 +87,8 @@ Keys InputX11::translate_keycode(u32 x_keycode)
 
         // case XK_sleep: return KEY_SLEEP; //not supported
 
+        case XK_KP_Enter:
+            return KEY_NUMPAD_ENTER;
         case XK_KP_0:
             return KEY_NUMPAD0;
         case XK_KP_1:

@@ -160,6 +160,9 @@ typedef enum Keys
     // Sleep key
     KEY_SLEEP = 0x5F,
 
+    // Numberpad Enter
+    KEY_NUMPAD_ENTER = 0xFF8D,
+
     // Numberpad 0 key
     KEY_NUMPAD0 = 0x60,
     // Numberpad 1 key

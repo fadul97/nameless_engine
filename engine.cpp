@@ -124,14 +124,17 @@ void NamelessEngine::run(App* app)
                         input->process_key(key, pressed);
                         input->update();
 
-                        if(key == KEY_SPACE)
-                            std::cout << "KEY_SPACE clicked!\n";
-                        
-                        if(key == KEY_ENTER)
-                            std::cout << "KEY_ENTER clicked!\n";
-
                         if(key == KEY_ESCAPE)
                             window->set_running(false);
+
+                        if(key == KEY_SPACE)
+                            std::cout << "KEY_SPACE pressed!\n";
+                        
+                        if(key == KEY_ENTER)
+                            std::cout << "KEY_ENTER pressed!\n";
+                        
+                        if(key == KEY_NUMPAD_ENTER)
+                            std::cout << "KEY_NUMPAD_ENTER pressed!\n";
                     }
                 } break;
                 case LeaveNotify:
