@@ -76,6 +76,10 @@ void NamelessEngine::run(App* app)
     app->set_input(input);
     app->init();
 
+    int y = 10;
+    int v = 1;
+    bool invert = false;
+
     while(window->is_running())
     {
         if(XPending(window->get_display()) > 0)
@@ -151,9 +155,20 @@ void NamelessEngine::run(App* app)
         app->update(1.0f);
 
         app->draw();
+        XClearWindow(window->get_display(), window->get_id());
+
+        if(y >= 150)
+            invert = true;
+        if(y <= 10)
+            invert = false;
+        
+        if(invert)
+            y -= v;
+        else
+            y += v;
 
         XSetForeground(window->get_display(), window->get_context(), (66UL << 16) | (165UL << 8) | 245UL);
-        XDrawLine(window->get_display(), window->get_id(), window->get_context(), 10, 50, 50, 150);
+        XDrawLine(window->get_display(), window->get_id(), window->get_context(), 10, y, 50, 150);
        
         // glXSwapBuffers(window->get_display(), window->get_id());
 
