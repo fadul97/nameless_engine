@@ -1,5 +1,5 @@
-#include "triangle.h"
 #include <iostream>
+#include "test_app.h"
 
 int main()
 {
@@ -11,9 +11,8 @@ int main()
         return result;
     }
     
-    std::cout << "It kinda worked.\n";
     // Main loop
-    engine->run(new Triangle());
+    engine->run(new TestApp(engine->get_renderer()));
     
     engine->shutdown();
 

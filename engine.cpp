@@ -4,6 +4,13 @@
 #include "error_list.h"
 #include <unistd.h>
 
+double get_abs_time()
+{
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return now.tv_sec + now.tv_nsec * 0.000000001;
+}
+
 NamelessEngine::NamelessEngine(BackendRenderer backend_renderer)
 {
     window = nullptr;
@@ -82,11 +89,20 @@ void NamelessEngine::run(App* app)
     int v = 1;
     bool invert = false;
 
+    f32 start_time = get_abs_time();
+    f32 delta_time = 0.0f;	// Time between current frame and last frame
+    f32 last_frame = 0.0f; // Time of last frame
+    f32 current_frame;
+
     while(window->is_running())
     {
+        // FIXME: delta_time is not working properly
+        current_frame = get_abs_time() - start_time;
+		delta_time = current_frame - last_frame;
+		last_frame = current_frame;
+
         if(XPending(window->get_display()) > 0)
         {
-
             XNextEvent(window->get_display(), &ev);
 
             switch(ev.type)
@@ -144,6 +160,7 @@ void NamelessEngine::run(App* app)
                     break;
                 case MotionNotify: {
                     input->update_mouse_position(ev.xmotion.x, ev.xmotion.y);
+                    std::cout << "Mouse: " << input->get_mouse_x() << "x" << input->get_mouse_y() << "\n";
                 } break;
                 case ConfigureNotify:
                     break;
@@ -157,10 +174,9 @@ void NamelessEngine::run(App* app)
             }
         }
 
-        app->update(1.0f);
+        app->update(delta_time);
 
         app->draw();
-        XClearWindow(window->get_display(), window->get_id());
 
         if(y >= 150)
             invert = true;
@@ -172,8 +188,9 @@ void NamelessEngine::run(App* app)
         else
             y += v;
        
+        // renderer->clear_window();
         renderer->draw_line(10, y, 50, 150, (66UL << 16) | (165UL << 8) | 245UL);
-
+        
         // glXSwapBuffers(window->get_display(), window->get_id());
 
         // If we sync, it will take 2 esc key presses to close window

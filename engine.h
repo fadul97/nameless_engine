@@ -35,7 +35,12 @@ public:
     b8 init(const char* title, i16 width, i16 height);
     void run(App* app);
     void shutdown();
+
+    RendererX11* get_renderer() const;
 };
+
+inline RendererX11* NamelessEngine::get_renderer() const
+{ return renderer; }
 
 #endif // PLATFORM_LINUX
 

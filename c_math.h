@@ -83,6 +83,7 @@ typedef struct Mat4 {
 		__m128 column[4];
 		Vec4 column_vector[4];
 		f32 data[16];
+        f32 m[4][4];
 	};
 } Mat4;
 
@@ -301,6 +302,23 @@ INLINE Vec3 mat4_mult_vec3(Mat4 a, Vec3 b)
         v = vec3_divide_by_scalar(v, w);
 
     return v;
+
+    /*
+    Vec3 v;
+
+    // printf("%.2f*%.2f + %.2f*%.2f + %.2f*%.2f + %.2f*%.2f\n",
+        // a.data[0] , b.x , a.data[1] , b.y , a.data[2] , b.z , a.data[3] , b.w);
+    v.x = b.x * a.m[0][0] + b.y * a.m[1][0] + b.z * a.m[2][0] + a.m[3][0];
+    v.y = b.x * a.m[0][1] + b.y * a.m[1][1] + b.z * a.m[2][1] + a.m[3][1];
+    v.z = b.x * a.m[0][2] + b.y * a.m[1][2] + b.z * a.m[2][2] + a.m[3][2];
+
+    f32 w = b.x * a.m[0][3] + b.y * a.m[1][3] + b.z * a.m[2][3] + a.m[3][3];
+
+    if(w != 0.0f)
+        v = vec3_divide_by_scalar(v, w);
+
+    return v;
+    */
 }
 
 INLINE Vec4 mat4_mult_vec4(Mat4 a, Vec4 b)

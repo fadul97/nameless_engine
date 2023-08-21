@@ -30,4 +30,9 @@ void RendererX11::draw_triangle(i32 x0, i32 y0, i32 x1, i32 y1, i32 x2, i32 y2, 
     draw_line(x2, y2, x0, y0, color);
 }
 
+void RendererX11::clear_window()
+{
+    XClearWindow(window->get_display(), window->get_id());
+}
+
 #endif // RENDERER_X11_H
