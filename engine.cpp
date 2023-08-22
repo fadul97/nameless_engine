@@ -7,9 +7,11 @@
 double get_abs_time()
 {
     struct timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &now);
     return now.tv_sec + now.tv_nsec * 0.000000001;
 }
+
+const d64 TARGET_FRAME_TIME = 1.0 / 60.0; // 60 FPS
 
 NamelessEngine::NamelessEngine(BackendRenderer backend_renderer)
 {
@@ -89,17 +91,20 @@ void NamelessEngine::run(App* app)
     int v = 1;
     bool invert = false;
 
-    f32 start_time = get_abs_time();
-    f32 delta_time = 0.0f;	// Time between current frame and last frame
-    f32 last_frame = 0.0f; // Time of last frame
+    f32 delta_time = 0.0f;              // Time between current frame and last frame
+    f32 last_frame = get_abs_time();
     f32 current_frame;
+
+    d64 accumulated_time = 0.0f;
 
     while(window->is_running())
     {
         // FIXME: delta_time is not working properly
-        current_frame = get_abs_time() - start_time;
-		delta_time = current_frame - last_frame;
-		last_frame = current_frame;
+        current_frame = get_abs_time();
+        delta_time = current_frame - last_frame;
+        last_frame = current_frame;
+
+        accumulated_time += delta_time;
 
         if(XPending(window->get_display()) > 0)
         {
@@ -174,8 +179,18 @@ void NamelessEngine::run(App* app)
             }
         }
 
-        app->update(delta_time);
-
+        // std::cout << "OUTSIDE LOOP:\n";
+        // std::cout << "Accumulated time = " << accumulated_time << "\n";
+        // std::cout << "TARGET_FRAME_TIME = " << TARGET_FRAME_TIME << "\n\n";
+        while(accumulated_time >= TARGET_FRAME_TIME)
+        {
+            // std::cout << "\tINSIDE LOOP:\n";
+            // std::cout << "\tAccumulated time = " << accumulated_time << "\n";
+            // std::cout << "\tTARGET_FRAME_TIME = " << TARGET_FRAME_TIME << "\n\n";
+            app->update(TARGET_FRAME_TIME);
+            accumulated_time -= TARGET_FRAME_TIME;
+        }
+    
         app->draw();
 
         if(y >= 150)
@@ -190,6 +205,10 @@ void NamelessEngine::run(App* app)
        
         // renderer->clear_window();
         renderer->draw_line(10, y, 50, 150, (66UL << 16) | (165UL << 8) | 245UL);
+
+        d64 time_to_sleep = TARGET_FRAME_TIME - (get_abs_time() - current_frame);
+        if(time_to_sleep > 0)
+            usleep(time_to_sleep);
         
         // glXSwapBuffers(window->get_display(), window->get_id());
 

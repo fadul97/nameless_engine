@@ -19,6 +19,10 @@ private:
 
 	RendererX11* renderer;
 
+	f32 theta;
+	f32 x;
+	f32 y;
+
 public:
     TestApp(RendererX11* renderer);
 
