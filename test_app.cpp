@@ -2,6 +2,19 @@
 
 #include <iostream>
 
+
+// RGB888 color format: 0x00RRGGBB
+#define RED_SHIFT   16
+#define GREEN_SHIFT  8
+#define BLUE_SHIFT   0
+
+ul32 red = 0xFFFF0000;
+ul32 green = 0xFF00FF00;
+ul32 blue = 0xFF0000FF;
+ul32 white = 0xFFFFFFFF;
+ul32 black = 0xFF000000;
+ul32 blueish = (66UL << 16) | (165UL << 8) | 245UL;
+
 void MultiplyMatrixVector(Vec3& i, Vec3& o, Mat4 &m)
 {
     o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
@@ -13,6 +26,19 @@ void MultiplyMatrixVector(Vec3& i, Vec3& o, Mat4 &m)
     {
         o.x /= w; o.y /= w; o.z /= w;
     }
+}
+
+ul32 adjust_brightness(ul32 color, f32 brightness) {
+    u8 red = (color >> RED_SHIFT) & 0xFF;
+    u8 green = (color >> GREEN_SHIFT) & 0xFF;
+    u8 blue = (color >> BLUE_SHIFT) & 0xFF;
+
+    red = (u8)(red * brightness);
+    green = (u8)(green * brightness);
+    blue = (u8)(blue * brightness);
+
+    ul32 adjustedColor = (red << RED_SHIFT) | (green << GREEN_SHIFT) | (blue << BLUE_SHIFT);
+    return adjustedColor;
 }
 
 TestApp::TestApp(RendererX11* renderer)
@@ -181,7 +207,13 @@ void TestApp::update(f32 delta_time)
         // if(normal.z < 0)
         if(vec3_dot_product(normal, vec3_minus(tri_translated.p[0], camera)) < 0.0f)
         {
-            // Vec3 light_direction = vec3_create(0.0f, 0.0f, -1.0f);
+            Vec3 light_direction = vec3_create(0.0f, 0.0f, -1.0f);
+            light_direction = vec3_normalize(light_direction);
+
+            f32 dp = vec3_dot_product(normal, light_direction);
+            ul32 original_color = white;
+            ul32 color = adjust_brightness(original_color, dp);
+
             // Project triangles from 3D to 2D
             tri_projected.p[0] =  mat4_mult_vec3(projection, tri_translated.p[0]);
             tri_projected.p[1] =  mat4_mult_vec3(projection, tri_translated.p[1]);
@@ -209,7 +241,14 @@ void TestApp::update(f32 delta_time)
                 tri_projected.p[0].x, tri_projected.p[0].y,
                 tri_projected.p[1].x, tri_projected.p[1].y,
                 tri_projected.p[2].x, tri_projected.p[2].y,
-                (66UL << 16) | (165UL << 8) | 245UL
+                color
+            );
+
+            renderer->draw_triangle(
+                tri_projected.p[0].x, tri_projected.p[0].y,
+                tri_projected.p[1].x, tri_projected.p[1].y,
+                tri_projected.p[2].x, tri_projected.p[2].y,
+                black
             );
         }
     }
