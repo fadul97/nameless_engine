@@ -8,6 +8,7 @@ enum
     ERR_INPUT,
     ERR_GC,
     ERR_RENDERER,
+    ERR_OBJ_LOADER,
     ERR_END
 } ErrorCode;
 

@@ -1,6 +1,9 @@
 #include "test_app.h"
 
 #include <iostream>
+#include <vector>
+
+#include <algorithm>
 
 
 // RGB888 color format: 0x00RRGGBB
@@ -41,7 +44,7 @@ ul32 adjust_brightness(ul32 color, f32 brightness) {
     return adjustedColor;
 }
 
-TestApp::TestApp(RendererX11* renderer)
+TestApp::TestApp(RendererX11* renderer, char* obj_file_path)
 {
     cube = {};
     projection = {};
@@ -58,36 +61,42 @@ TestApp::TestApp(RendererX11* renderer)
 
     translation = vec3_create(0.0f, 0.0f, 0.0f);
     camera = vec3_create(0.0f, 0.0f, 0.0f);
+
+    obj_file = obj_file_path;
+
+    mesh_color = white;
 }
 
 void TestApp::init()
 {
-    cube.tris = 
-    {
-        // SOUTH
-        {0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f},
+    // cube.tris = 
+    // {
+    //     // SOUTH
+    //     {0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f},
+    //     {0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f},
 
-        // EAST
-        {1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f},
-        {1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f},
+    //     // EAST
+    //     {1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f},
+    //     {1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f},
 
-        // NORTH                                                     
-		{1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f},
-		{1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f},
+    //     // NORTH                                                     
+	// 	{1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f},
+	// 	{1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f},
 
-		// WEST                                                      
-		{0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f},
-		{0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f},
+	// 	// WEST                                                      
+	// 	{0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f},
+	// 	{0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f},
 
-		// TOP                                                       
-		{0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f},
-		{0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f},
+	// 	// TOP                                                       
+	// 	{0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f},
+	// 	{0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f},
 
-		// BOTTOM                                                    
-		{1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f},
-		{1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f},
-    };
+	// 	// BOTTOM                                                    
+	// 	{1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f},
+	// 	{1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f},
+    // };
+
+    cube.load_from_obj_file(obj_file);
 
     projection.data[0] = aspect_ratio * fov_rad;
     projection.data[5] = fov_rad;
@@ -115,8 +124,8 @@ void TestApp::update(f32 delta_time)
     Mat4 mat_rotx;
     Mat4 mat_rotz;
     theta += 1.0f * delta_time;
-    std::cout << "Delta: " << delta_time << "\n";
-    std::cout << "Theta: " << theta << "\n";
+    // std::cout << "Delta: " << delta_time << "\n";
+    // std::cout << "Theta: " << theta << "\n";
 
     // Rotation Z
     // mat_rotz.m[0][0] = cosf(theta);
@@ -145,7 +154,7 @@ void TestApp::update(f32 delta_time)
     if(input->is_key_down(KEY_A))
         translation.x--;
 
-
+    std::vector<Triangle> vec_triangles_to_raster; 
 
     for(auto tri : cube.tris)
     {
@@ -159,26 +168,16 @@ void TestApp::update(f32 delta_time)
         tri_rotated_z.p[1] =  mat4_mult_vec3(mat_rotz, tri.p[1]);
         tri_rotated_z.p[2] =  mat4_mult_vec3(mat_rotz, tri.p[2]);
 
-        // // Rotate in X-Axis
+        // Rotate in X-Axis
         tri_rotated_zx.p[0] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[0]);
         tri_rotated_zx.p[1] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[1]);
         tri_rotated_zx.p[2] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[2]);
 
-        // // Rotate in Z-Axis
-        // MultiplyMatrixVector(tri.p[0], tri_rotated_z.p[0], mat_rotz);
-        // MultiplyMatrixVector(tri.p[1], tri_rotated_z.p[1], mat_rotz);
-        // MultiplyMatrixVector(tri.p[2], tri_rotated_z.p[2], mat_rotz);
-
-        // // Rotate in X-Axis
-        // MultiplyMatrixVector(tri_rotated_z.p[0], tri_rotated_zx.p[0], mat_rotx);
-        // MultiplyMatrixVector(tri_rotated_z.p[1], tri_rotated_zx.p[1], mat_rotx);
-        // MultiplyMatrixVector(tri_rotated_z.p[2], tri_rotated_zx.p[2], mat_rotx);
-
         // Offset into the screen
         tri_translated = tri_rotated_zx;
-        tri_translated.p[0].z = tri_rotated_zx.p[0].z + 3.0f;
-        tri_translated.p[1].z = tri_rotated_zx.p[1].z + 3.0f;
-        tri_translated.p[2].z = tri_rotated_zx.p[2].z + 3.0f;
+        tri_translated.p[0].z = tri_rotated_zx.p[0].z + 8.0f;
+        tri_translated.p[1].z = tri_rotated_zx.p[1].z + 8.0f;
+        tri_translated.p[2].z = tri_rotated_zx.p[2].z + 8.0f;
 
         // Adding movement
         tri_translated.p[0].x += translation.x * 2.0f * delta_time;
@@ -212,7 +211,7 @@ void TestApp::update(f32 delta_time)
 
             f32 dp = vec3_dot_product(normal, light_direction);
             ul32 original_color = white;
-            ul32 color = adjust_brightness(original_color, dp);
+            mesh_color = adjust_brightness(original_color, dp);
 
             // Project triangles from 3D to 2D
             tri_projected.p[0] =  mat4_mult_vec3(projection, tri_translated.p[0]);
@@ -230,27 +229,36 @@ void TestApp::update(f32 delta_time)
             tri_projected.p[2].x *= 0.5f * (f32)800;
             tri_projected.p[2].y *= 0.5f * (f32)600;
 
-            // std::cout << "\n\np[0]";
-            // vec3_print(tri_projected.p[0]);
-            // std::cout << "\np[1]";
-            // vec3_print(tri_projected.p[1]);
-            // std::cout << "\np[2]";
-            // vec3_print(tri_projected.p[2]);
-
-            renderer->fill_triangle(
-                tri_projected.p[0].x, tri_projected.p[0].y,
-                tri_projected.p[1].x, tri_projected.p[1].y,
-                tri_projected.p[2].x, tri_projected.p[2].y,
-                color
-            );
-
-            renderer->draw_triangle(
-                tri_projected.p[0].x, tri_projected.p[0].y,
-                tri_projected.p[1].x, tri_projected.p[1].y,
-                tri_projected.p[2].x, tri_projected.p[2].y,
-                black
-            );
+            vec_triangles_to_raster.push_back(tri_projected);
         }
+    }
+
+    // Sort triangles from back to front
+    std::sort(vec_triangles_to_raster.begin(), vec_triangles_to_raster.end(), 
+        [](Triangle& t1, Triangle& t2)
+        {
+            f32 z1 = (t1.p[0].z + t1.p[1].z + t1.p[2].z) / 3.0f;
+			f32 z2 = (t2.p[0].z + t2.p[1].z + t2.p[2].z) / 3.0f;
+			return z1 > z2;
+        }
+    );
+
+    
+    for(auto& tri_projected : vec_triangles_to_raster)
+    {
+        renderer->fill_triangle(
+            tri_projected.p[0].x, tri_projected.p[0].y,
+            tri_projected.p[1].x, tri_projected.p[1].y,
+            tri_projected.p[2].x, tri_projected.p[2].y,
+            mesh_color
+        );
+
+        renderer->draw_triangle(
+            tri_projected.p[0].x, tri_projected.p[0].y,
+            tri_projected.p[1].x, tri_projected.p[1].y,
+            tri_projected.p[2].x, tri_projected.p[2].y,
+            black
+        );
     }
 }
 

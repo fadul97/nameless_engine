@@ -6,5 +6,6 @@ const char *error_names[] = {
     "ERR_INPUT",
     "ERR_GC",
     "ERR_RENDERER",
+    "ERR_OBJ_LOADER",
     "ERR_END"
 };

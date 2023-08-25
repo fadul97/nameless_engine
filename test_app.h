@@ -24,8 +24,12 @@ private:
 	Mat4 model;
 	Vec3 camera;
 
+	ul32 mesh_color;
+
+	char* obj_file;
+
 public:
-    TestApp(RendererX11* renderer);
+    TestApp(RendererX11* renderer, char* obj_file_path);
 
 	Mesh cube;
 	Mat4 projection;

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "test_app.h"
 
-int main()
+int main(int argc, char** argv)
 {
     auto engine = new NamelessEngine(RENDERER_GLX);
     b8 result = engine->init("JOJ Engine", 800, 600);
@@ -11,8 +11,17 @@ int main()
         return result;
     }
     
+    if(argc < 1) {
+        std::cout << "No obj file\n";
+
+        // Main loop
+        engine->run(new TestApp(engine->get_renderer(), ""));
+        
+        return 0;
+    }
+    
     // Main loop
-    engine->run(new TestApp(engine->get_renderer()));
+    engine->run(new TestApp(engine->get_renderer(), argv[1]));
     
     engine->shutdown();
 
