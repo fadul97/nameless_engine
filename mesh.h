@@ -6,7 +6,7 @@
 /*
     Resources: 
         David Barr (Javidx9) - OneLoneCoder
-            https://github.com/OneLoneCoder/Javidx9/tree/master/ConsoleGameEngine
+            https://github.com/OneLoneCoder/Javidx9/blob/master/ConsoleGameEngine/BiggerProjects/Engine3D/OneLoneCoder_olcEngine3D_Part2.cpp
             https://www.youtube.com/watch?v=XgMWc6LumG4
 */
 
@@ -20,7 +20,7 @@
 
 struct Triangle
 {
-    Vec3 p[3]; 
+    Vec4 p[3]; 
 };
 
 
@@ -35,7 +35,7 @@ struct Mesh
 			return ERR_OBJ_LOADER;
         
         // Local cache of verts
-		std::vector<Vec3> verts;
+		std::vector<Vec4> verts;
 
         while(!f.eof())
 		{
@@ -49,8 +49,9 @@ struct Mesh
 
 			if(line[0] == 'v')
 			{
-				Vec3 v;
+				Vec4 v;
 				s >> junk >> v.x >> v.y >> v.z;
+                v.w = 1.0f;
 				verts.push_back(v);
 			}
 

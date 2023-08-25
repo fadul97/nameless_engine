@@ -239,6 +239,13 @@ INLINE void vec3v_divide_by_scalar(Vec3 a, f32 k)
     v->z /= k;
 }
 
+INLINE Vec3 vec3_mul_mat4(Vec3 v, Mat4 m) {
+    return (Vec3){
+        v.x * m.data[0] + v.y * m.data[4] + v.z * m.data[8] + m.data[12],
+        v.x * m.data[1] + v.y * m.data[5] + v.z * m.data[9] + m.data[13],
+        v.x * m.data[2] + v.y * m.data[6] + v.z * m.data[10] + m.data[14]};
+}
+
 // Return Vec3 a magnitude/length
 INLINE d64 vec3_length(Vec3 a)
 { return sqrt((a.x * a.x) + (a.y * a.y) + (a.z * a.z)); }
@@ -277,6 +284,9 @@ INLINE void vec3v_cross_product(Vec3 a, Vec3 b)
 	v->y = y;
 	v->z = z;
 }
+
+INLINE Vec3 vec3_from_vec4(Vec4 a)
+{ return (Vec3){a.x, a.y, a.z}; }
 
 // Return distance between Vec a and b
 INLINE d64 vec3_distance(Vec3 a, Vec3 b)
@@ -355,6 +365,50 @@ INLINE Vec4 vec4_green()
 INLINE Vec4 vec4_blue()
 { return (Vec4){0.0f, 0.0f, 1.0f, 1.0f}; }
 
+// Return 'new' Vec4 b added to a
+INLINE Vec4 vec4_add(Vec4 a, Vec4 b)
+{ return (Vec4){a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w}; }
+
+// Return Vec4 a divided by scalar k
+INLINE Vec4 vec4_divide_by_scalar(Vec4 a, f32 k)
+{ return (Vec4){a.x / k, a.y / k, a.z / k, a.w / k}; }
+
+// Return Vec4 a magnitude/length
+INLINE d64 vec4_length(Vec4 a)
+{ return sqrt((a.x * a.x) + (a.y * a.y) + (a.z * a.z) + (a.w * a.w)); }
+
+// Return 'new' Vec4 a subtracted by b
+INLINE Vec4 vec4_minus(Vec4 a, Vec4 b)
+{ return (Vec4){a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w}; }
+
+// Subtract Vec4 b from a
+INLINE void vec4v_minus(Vec4 a, Vec4 b)
+{
+    Vec4 *v = &a;
+    v->x -= b.x;
+    v->y -= b.y;
+    v->z -= b.z;
+    v->w -= b.w;
+}
+
+INLINE Vec4 mat4_mul_vec4(Mat4 m, Vec4 v) {
+    return (Vec4){
+        v.x * m.data[0] + v.y * m.data[1] + v.z * m.data[2] + v.w * m.data[3],
+        v.x * m.data[4] + v.y * m.data[5] + v.z * m.data[6] + v.w * m.data[7],
+        v.x * m.data[8] + v.y * m.data[9] + v.z * m.data[10] + v.w * m.data[11],
+        v.x * m.data[12] + v.y * m.data[13] + v.z * m.data[14] + v.w * m.data[15]};
+}
+
+// Return normalized Vec4 a
+INLINE Vec4 vec4_normalize(Vec4 a)
+{ return vec4_divide_by_scalar(a, (f32)vec4_length(a)); }
+
+INLINE Vec4 vec4_from_vec3(Vec3 a)
+{ return (Vec4){a.x, a.y, a.z, 1.0f}; }
+
+// Print Vec3: (x, y);
+INLINE void vec4_print(Vec4 a)
+{ printf("(%f, %f, %f, %f)", a.x, a.y, a.z, a.w); }
 
 /* Matrix 4 */
 
@@ -503,6 +557,25 @@ INLINE Mat4 mat4_euler_z(f32 angle_radians) {
     o.data[1] = s;
     o.data[4] = -s;
     o.data[5] = c;
+
+    return o;
+}
+
+INLINE Mat4 mat4_mul(Mat4 a, Mat4 b) {
+    Mat4 o = mat4_identity();
+
+    const f32 *m1_ptr = a.data;
+    const f32 *m2_ptr = b.data;
+    f32 *dst_ptr = o.data;
+
+    for (i32 i = 0; i < 4; ++i) {
+        for (i32 j = 0; j < 4; ++j) {
+            *dst_ptr = m1_ptr[0] * m2_ptr[0 + j] + m1_ptr[1] * m2_ptr[4 + j] +
+                       m1_ptr[2] * m2_ptr[8 + j] + m1_ptr[3] * m2_ptr[12 + j];
+            dst_ptr++;
+        }
+        m1_ptr += 4;
+    }
 
     return o;
 }

@@ -69,52 +69,9 @@ TestApp::TestApp(RendererX11* renderer, char* obj_file_path)
 
 void TestApp::init()
 {
-    // cube.tris = 
-    // {
-    //     // SOUTH
-    //     {0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f},
-    //     {0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f},
-
-    //     // EAST
-    //     {1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f},
-    //     {1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f},
-
-    //     // NORTH                                                     
-	// 	{1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f},
-	// 	{1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f},
-
-	// 	// WEST                                                      
-	// 	{0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f},
-	// 	{0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f},
-
-	// 	// TOP                                                       
-	// 	{0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f},
-	// 	{0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f},
-
-	// 	// BOTTOM                                                    
-	// 	{1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f},
-	// 	{1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f},
-    // };
-
     cube.load_from_obj_file(obj_file);
 
-    projection.data[0] = aspect_ratio * fov_rad;
-    projection.data[5] = fov_rad;
-    projection.data[10] = far / (far - near);
-    projection.data[14] = (-far * near) / (far - near);
-    projection.data[11] = 1.0f;
-    projection.data[15] = 0.0f;
-
-    /*
-    projection.m[0][0] = aspect_ratio * fov_rad;
-    projection.m[1][1] = fov_rad;
-    projection.m[2][2] = far / (far - near);
-    projection.m[3][2] = (-far * near) / (far - near);
-    projection.m[2][3] = 1.0f;
-    projection.m[3][3] = 0.0f;
-    */
-
-    // projection = mat4_perspective(fov_rad, aspect_ratio, near, far);
+    projection = mat4_perspective(fov, aspect_ratio, near, far);
 }
 
 void TestApp::update(f32 delta_time)
@@ -128,21 +85,9 @@ void TestApp::update(f32 delta_time)
     // std::cout << "Theta: " << theta << "\n";
 
     // Rotation Z
-    // mat_rotz.m[0][0] = cosf(theta);
-    // mat_rotz.m[0][1] = sinf(theta);
-    // mat_rotz.m[1][0] = -sinf(theta);
-    // mat_rotz.m[1][1] = cosf(theta);
-    // mat_rotz.m[2][2] = 1;
-    // mat_rotz.m[3][3] = 1;
     mat_rotz = mat4_euler_z(theta);
 
-    // // Rotation X
-    // mat_rotx.m[0][0] = 1;
-    // mat_rotx.m[1][1] = cosf(theta * 0.5f);
-    // mat_rotx.m[1][2] = sinf(theta * 0.5f);
-    // mat_rotx.m[2][1] = -sinf(theta * 0.5f);
-    // mat_rotx.m[2][2] = cosf(theta * 0.5f);
-    // mat_rotx.m[3][3] = 1;
+    // Rotation X
     mat_rotx = mat4_euler_x(theta);
 
     if(input->is_key_down(KEY_W))
@@ -162,16 +107,17 @@ void TestApp::update(f32 delta_time)
         Triangle tri_translated;
         Triangle tri_rotated_z;
         Triangle tri_rotated_zx;
+        Triangle tri_transformed;
 
         // Rotate in Z-Axis
-        tri_rotated_z.p[0] =  mat4_mult_vec3(mat_rotz, tri.p[0]);
-        tri_rotated_z.p[1] =  mat4_mult_vec3(mat_rotz, tri.p[1]);
-        tri_rotated_z.p[2] =  mat4_mult_vec3(mat_rotz, tri.p[2]);
+        tri_rotated_z.p[0] =  mat4_mult_vec4(mat_rotz, tri.p[0]);
+        tri_rotated_z.p[1] =  mat4_mult_vec4(mat_rotz, tri.p[1]);
+        tri_rotated_z.p[2] =  mat4_mult_vec4(mat_rotz, tri.p[2]);
 
         // Rotate in X-Axis
-        tri_rotated_zx.p[0] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[0]);
-        tri_rotated_zx.p[1] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[1]);
-        tri_rotated_zx.p[2] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[2]);
+        tri_rotated_zx.p[0] =  mat4_mult_vec4(mat_rotx, tri_rotated_z.p[0]);
+        tri_rotated_zx.p[1] =  mat4_mult_vec4(mat_rotx, tri_rotated_z.p[1]);
+        tri_rotated_zx.p[2] =  mat4_mult_vec4(mat_rotx, tri_rotated_z.p[2]);
 
         // Offset into the screen
         tri_translated = tri_rotated_zx;
@@ -203,8 +149,9 @@ void TestApp::update(f32 delta_time)
         normal = vec3_cross_product(line1, line2);
         normal = vec3_normalize(normal);
 
-        // if(normal.z < 0)
-        if(vec3_dot_product(normal, vec3_minus(tri_translated.p[0], camera)) < 0.0f)
+        Vec3 camera_ray = vec3_minus(vec3_from_vec4(tri_translated.p[0]), camera);
+
+        if(vec3_dot_product(normal, camera_ray) < 0.0f)
         {
             Vec3 light_direction = vec3_create(0.0f, 0.0f, -1.0f);
             light_direction = vec3_normalize(light_direction);
@@ -214,9 +161,9 @@ void TestApp::update(f32 delta_time)
             mesh_color = adjust_brightness(original_color, dp);
 
             // Project triangles from 3D to 2D
-            tri_projected.p[0] =  mat4_mult_vec3(projection, tri_translated.p[0]);
-            tri_projected.p[1] =  mat4_mult_vec3(projection, tri_translated.p[1]);
-            tri_projected.p[2] =  mat4_mult_vec3(projection, tri_translated.p[2]);
+            tri_projected.p[0] =  mat4_mult_vec4(projection, tri_translated.p[0]);
+            tri_projected.p[1] =  mat4_mult_vec4(projection, tri_translated.p[1]);
+            tri_projected.p[2] =  mat4_mult_vec4(projection, tri_translated.p[2]);
 
             // Scale into view
             tri_projected.p[0].x += 1.0f; tri_projected.p[0].y += 1.0f;
@@ -246,18 +193,18 @@ void TestApp::update(f32 delta_time)
     
     for(auto& tri_projected : vec_triangles_to_raster)
     {
-        renderer->fill_triangle(
-            tri_projected.p[0].x, tri_projected.p[0].y,
-            tri_projected.p[1].x, tri_projected.p[1].y,
-            tri_projected.p[2].x, tri_projected.p[2].y,
-            mesh_color
-        );
+        // renderer->fill_triangle(
+        //     tri_projected.p[0].x, tri_projected.p[0].y,
+        //     tri_projected.p[1].x, tri_projected.p[1].y,
+        //     tri_projected.p[2].x, tri_projected.p[2].y,
+        //     mesh_color
+        // );
 
         renderer->draw_triangle(
             tri_projected.p[0].x, tri_projected.p[0].y,
             tri_projected.p[1].x, tri_projected.p[1].y,
             tri_projected.p[2].x, tri_projected.p[2].y,
-            black
+            mesh_color
         );
     }
 }
