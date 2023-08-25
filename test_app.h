@@ -10,7 +10,6 @@
 class TestApp : public App
 {
 private:
-
 	f32 near;
 	f32 far;
 	f32 fov;
@@ -20,8 +19,9 @@ private:
 	RendererX11* renderer;
 
 	f32 theta;
-	f32 x;
-	f32 y;
+	Vec3 translation;
+
+	Mat4 model;
 
 public:
     TestApp(RendererX11* renderer);

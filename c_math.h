@@ -3,6 +3,11 @@
 
 #include "defines.h"
 
+/*
+    Resources: 
+        Kohi Game Engine by Travis Vroman
+            https://github.com/travisvroman/kohi
+*/
 
 // #include <intrin.h>
 #include <x86intrin.h>
@@ -449,6 +454,57 @@ INLINE Mat4 mat4_scale(Mat4 a, Vec3 b)
     m.column[2][2] = a.column[2][2] * b.z;
 
     return m;
+}
+
+INLINE Mat4 mat4_translation(Vec3 v)
+{
+    Mat4 o = mat4_identity();
+
+    o.data[12] = v.x;
+    o.data[13] = v.y;
+    o.data[14] = v.z;
+
+    return o;
+}
+
+INLINE Mat4 mat4_euler_x(f32 angle_radians) {
+    Mat4 o = mat4_identity();
+    f32 c = cosf(angle_radians);
+    f32 s = sinf(angle_radians);
+
+    o.data[5] = c;
+    o.data[6] = s;
+    o.data[9] = -s;
+    o.data[10] = c;
+
+    return o;
+}
+
+INLINE Mat4 mat4_euler_y(f32 angle_radians) {
+    Mat4 o = mat4_identity();
+    f32 c = cosf(angle_radians);
+    f32 s = sinf(angle_radians);
+
+    o.data[0] = c;
+    o.data[2] = -s;
+    o.data[8] = s;
+    o.data[10] = c;
+    
+    return o;
+}
+
+INLINE Mat4 mat4_euler_z(f32 angle_radians) {
+    Mat4 o = mat4_identity();
+
+    f32 c = cosf(angle_radians);
+    f32 s = sinf(angle_radians);
+
+    o.data[0] = c;
+    o.data[1] = s;
+    o.data[4] = -s;
+    o.data[5] = c;
+
+    return o;
 }
 
 INLINE void mat4_print(Mat4 m)

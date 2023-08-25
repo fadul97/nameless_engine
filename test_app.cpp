@@ -29,8 +29,8 @@ TestApp::TestApp(RendererX11* renderer)
     this->renderer = renderer;
 
     theta = 0.0f;
-    x = 0.0f;
-    y = 0.0f;
+
+    translation = vec3_create(0.0f, 0.0f, 0.0f);
 }
 
 void TestApp::init()
@@ -98,6 +98,7 @@ void TestApp::update(f32 delta_time)
     // mat_rotz.m[1][1] = cosf(theta);
     // mat_rotz.m[2][2] = 1;
     // mat_rotz.m[3][3] = 1;
+    mat_rotz = mat4_euler_z(theta);
 
     // // Rotation X
     // mat_rotx.m[0][0] = 1;
@@ -106,15 +107,18 @@ void TestApp::update(f32 delta_time)
     // mat_rotx.m[2][1] = -sinf(theta * 0.5f);
     // mat_rotx.m[2][2] = cosf(theta * 0.5f);
     // mat_rotx.m[3][3] = 1;
+    mat_rotx = mat4_euler_x(theta);
 
     if(input->is_key_down(KEY_W))
-        y--;
+        translation.y--;
     if(input->is_key_down(KEY_S))
-        y++;
+        translation.y++;
     if(input->is_key_down(KEY_D))
-        x++;
+        translation.x++;
     if(input->is_key_down(KEY_A))
-        x--;
+        translation.x--;
+
+
 
     for(auto tri : cube.tris)
     {
@@ -124,14 +128,14 @@ void TestApp::update(f32 delta_time)
         Triangle tri_rotated_zx;
 
         // Rotate in Z-Axis
-        // tri_rotated_z.p[0] =  mat4_mult_vec3(mat_rotz, tri.p[0]);
-        // tri_rotated_z.p[1] =  mat4_mult_vec3(mat_rotz, tri.p[1]);
-        // tri_rotated_z.p[2] =  mat4_mult_vec3(mat_rotz, tri.p[2]);
+        tri_rotated_z.p[0] =  mat4_mult_vec3(mat_rotz, tri.p[0]);
+        tri_rotated_z.p[1] =  mat4_mult_vec3(mat_rotz, tri.p[1]);
+        tri_rotated_z.p[2] =  mat4_mult_vec3(mat_rotz, tri.p[2]);
 
         // // Rotate in X-Axis
-        // tri_rotated_zx.p[0] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[0]);
-        // tri_rotated_zx.p[1] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[1]);
-        // tri_rotated_zx.p[2] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[2]);
+        tri_rotated_zx.p[0] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[0]);
+        tri_rotated_zx.p[1] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[1]);
+        tri_rotated_zx.p[2] =  mat4_mult_vec3(mat_rotx, tri_rotated_z.p[2]);
 
         // // Rotate in Z-Axis
         // MultiplyMatrixVector(tri.p[0], tri_rotated_z.p[0], mat_rotz);
@@ -143,29 +147,29 @@ void TestApp::update(f32 delta_time)
         // MultiplyMatrixVector(tri_rotated_z.p[1], tri_rotated_zx.p[1], mat_rotx);
         // MultiplyMatrixVector(tri_rotated_z.p[2], tri_rotated_zx.p[2], mat_rotx);
 
-        // tri_translated = tri_rotated_zx;
-        // tri_translated.p[0].z = tri_rotated_zx.p[0].z + 3.0f;
-        // tri_translated.p[1].z = tri_rotated_zx.p[1].z + 3.0f;
-        // tri_translated.p[2].z = tri_rotated_zx.p[2].z + 3.0f;
-        // tri_projected.p[0] =  mat4_mult_vec3(projection, tri_translated.p[0]);
-        // tri_projected.p[1] =  mat4_mult_vec3(projection, tri_translated.p[1]);
-        // tri_projected.p[2] =  mat4_mult_vec3(projection, tri_translated.p[2]);
+        tri_translated = tri_rotated_zx;
+        tri_translated.p[0].z = tri_rotated_zx.p[0].z + 3.0f;
+        tri_translated.p[1].z = tri_rotated_zx.p[1].z + 3.0f;
+        tri_translated.p[2].z = tri_rotated_zx.p[2].z + 3.0f;
+        tri_projected.p[0] =  mat4_mult_vec3(projection, tri_translated.p[0]);
+        tri_projected.p[1] =  mat4_mult_vec3(projection, tri_translated.p[1]);
+        tri_projected.p[2] =  mat4_mult_vec3(projection, tri_translated.p[2]);
 
-        tri.p[0].x += x * 2.0f * delta_time;
-        tri.p[1].x += x * 2.0f * delta_time;
-        tri.p[2].x += x * 2.0f * delta_time;
+        tri_translated.p[0].x += translation.x * 2.0f * delta_time;
+        tri_translated.p[1].x += translation.x * 2.0f * delta_time;
+        tri_translated.p[2].x += translation.x * 2.0f * delta_time;
 
-        tri.p[0].y += y * 2.0f * delta_time;
-        tri.p[1].y += y * 2.0f * delta_time;
-        tri.p[2].y += y * 2.0f * delta_time;
+        tri_translated.p[0].y += translation.y * 2.0f * delta_time;
+        tri_translated.p[1].y += translation.y * 2.0f * delta_time;
+        tri_translated.p[2].y += translation.y * 2.0f * delta_time;
 
         // tri.p[0].y += y * 0.01f;
         // tri.p[1].y += y * 0.01f;
         // tri.p[2].y += y * 0.01f;
 
-        tri_projected.p[0] =  mat4_mult_vec3(projection, tri.p[0]);
-        tri_projected.p[1] =  mat4_mult_vec3(projection, tri.p[1]);
-        tri_projected.p[2] =  mat4_mult_vec3(projection, tri.p[2]);
+        tri_projected.p[0] =  mat4_mult_vec3(projection, tri_translated.p[0]);
+        tri_projected.p[1] =  mat4_mult_vec3(projection, tri_translated.p[1]);
+        tri_projected.p[2] =  mat4_mult_vec3(projection, tri_translated.p[2]);
 
         // Scale into view
         tri_projected.p[0].x += 1.0f; tri_projected.p[0].y += 1.0f;
