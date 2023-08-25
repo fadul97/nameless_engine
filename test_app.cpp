@@ -31,6 +31,7 @@ TestApp::TestApp(RendererX11* renderer)
     theta = 0.0f;
 
     translation = vec3_create(0.0f, 0.0f, 0.0f);
+    camera = vec3_create(0.0f, 0.0f, 0.0f);
 }
 
 void TestApp::init()
@@ -147,14 +148,13 @@ void TestApp::update(f32 delta_time)
         // MultiplyMatrixVector(tri_rotated_z.p[1], tri_rotated_zx.p[1], mat_rotx);
         // MultiplyMatrixVector(tri_rotated_z.p[2], tri_rotated_zx.p[2], mat_rotx);
 
+        // Offset into the screen
         tri_translated = tri_rotated_zx;
         tri_translated.p[0].z = tri_rotated_zx.p[0].z + 3.0f;
         tri_translated.p[1].z = tri_rotated_zx.p[1].z + 3.0f;
         tri_translated.p[2].z = tri_rotated_zx.p[2].z + 3.0f;
-        tri_projected.p[0] =  mat4_mult_vec3(projection, tri_translated.p[0]);
-        tri_projected.p[1] =  mat4_mult_vec3(projection, tri_translated.p[1]);
-        tri_projected.p[2] =  mat4_mult_vec3(projection, tri_translated.p[2]);
 
+        // Adding movement
         tri_translated.p[0].x += translation.x * 2.0f * delta_time;
         tri_translated.p[1].x += translation.x * 2.0f * delta_time;
         tri_translated.p[2].x += translation.x * 2.0f * delta_time;
@@ -163,38 +163,55 @@ void TestApp::update(f32 delta_time)
         tri_translated.p[1].y += translation.y * 2.0f * delta_time;
         tri_translated.p[2].y += translation.y * 2.0f * delta_time;
 
-        // tri.p[0].y += y * 0.01f;
-        // tri.p[1].y += y * 0.01f;
-        // tri.p[2].y += y * 0.01f;
+        Vec3 normal;
+        Vec3 line1;
+        Vec3 line2;
 
-        tri_projected.p[0] =  mat4_mult_vec3(projection, tri_translated.p[0]);
-        tri_projected.p[1] =  mat4_mult_vec3(projection, tri_translated.p[1]);
-        tri_projected.p[2] =  mat4_mult_vec3(projection, tri_translated.p[2]);
+        line1.x = tri_translated.p[1].x - tri_translated.p[0].x;
+        line1.y = tri_translated.p[1].y - tri_translated.p[0].y;
+        line1.z = tri_translated.p[1].z - tri_translated.p[0].z;
 
-        // Scale into view
-        tri_projected.p[0].x += 1.0f; tri_projected.p[0].y += 1.0f;
-        tri_projected.p[1].x += 1.0f; tri_projected.p[1].y += 1.0f;
-        tri_projected.p[2].x += 1.0f; tri_projected.p[2].y += 1.0f;
-        tri_projected.p[0].x *= 0.5f * (f32)800;
-        tri_projected.p[0].y *= 0.5f * (f32)600;
-        tri_projected.p[1].x *= 0.5f * (f32)800;
-        tri_projected.p[1].y *= 0.5f * (f32)600;
-        tri_projected.p[2].x *= 0.5f * (f32)800;
-        tri_projected.p[2].y *= 0.5f * (f32)600;
+        line2.x = tri_translated.p[2].x - tri_translated.p[0].x;
+        line2.y = tri_translated.p[2].y - tri_translated.p[0].y;
+        line2.z = tri_translated.p[2].z - tri_translated.p[0].z;
 
-        // std::cout << "\n\np[0]";
-        // vec3_print(tri_projected.p[0]);
-        // std::cout << "\np[1]";
-        // vec3_print(tri_projected.p[1]);
-        // std::cout << "\np[2]";
-        // vec3_print(tri_projected.p[2]);
+        normal = vec3_cross_product(line1, line2);
+        normal = vec3_normalize(normal);
 
-        renderer->draw_triangle(
-            tri_projected.p[0].x, tri_projected.p[0].y,
-            tri_projected.p[1].x, tri_projected.p[1].y,
-            tri_projected.p[2].x, tri_projected.p[2].y,
-            (66UL << 16) | (165UL << 8) | 245UL
-        );
+        // if(normal.z < 0)
+        if(vec3_dot_product(normal, vec3_minus(tri_translated.p[0], camera)) < 0.0f)
+        {
+            // Vec3 light_direction = vec3_create(0.0f, 0.0f, -1.0f);
+            // Project triangles from 3D to 2D
+            tri_projected.p[0] =  mat4_mult_vec3(projection, tri_translated.p[0]);
+            tri_projected.p[1] =  mat4_mult_vec3(projection, tri_translated.p[1]);
+            tri_projected.p[2] =  mat4_mult_vec3(projection, tri_translated.p[2]);
+
+            // Scale into view
+            tri_projected.p[0].x += 1.0f; tri_projected.p[0].y += 1.0f;
+            tri_projected.p[1].x += 1.0f; tri_projected.p[1].y += 1.0f;
+            tri_projected.p[2].x += 1.0f; tri_projected.p[2].y += 1.0f;
+            tri_projected.p[0].x *= 0.5f * (f32)800;
+            tri_projected.p[0].y *= 0.5f * (f32)600;
+            tri_projected.p[1].x *= 0.5f * (f32)800;
+            tri_projected.p[1].y *= 0.5f * (f32)600;
+            tri_projected.p[2].x *= 0.5f * (f32)800;
+            tri_projected.p[2].y *= 0.5f * (f32)600;
+
+            // std::cout << "\n\np[0]";
+            // vec3_print(tri_projected.p[0]);
+            // std::cout << "\np[1]";
+            // vec3_print(tri_projected.p[1]);
+            // std::cout << "\np[2]";
+            // vec3_print(tri_projected.p[2]);
+
+            renderer->fill_triangle(
+                tri_projected.p[0].x, tri_projected.p[0].y,
+                tri_projected.p[1].x, tri_projected.p[1].y,
+                tri_projected.p[2].x, tri_projected.p[2].y,
+                (66UL << 16) | (165UL << 8) | 245UL
+            );
+        }
     }
 }
 

@@ -22,6 +22,7 @@ private:
 	Vec3 translation;
 
 	Mat4 model;
+	Vec3 camera;
 
 public:
     TestApp(RendererX11* renderer);

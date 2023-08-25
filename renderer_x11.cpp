@@ -30,6 +30,18 @@ void RendererX11::draw_triangle(i32 x0, i32 y0, i32 x1, i32 y1, i32 x2, i32 y2, 
     draw_line(x2, y2, x0, y0, color);
 }
 
+void RendererX11::fill_triangle(i32 x0, i32 y0, i32 x1, i32 y1, i32 x2, i32 y2, ul32 color)
+{
+    XPoint points[3] = {
+        {x0, y0},
+        {x1, y1},
+        {x2, y2}
+    };
+
+    XSetForeground(window->get_display(), window->get_context(), color);
+    XFillPolygon(window->get_display(), window->get_id(), window->get_context(), points, 3, Convex, CoordModeOrigin);
+}
+
 void RendererX11::clear_window()
 {
     XClearWindow(window->get_display(), window->get_id());
