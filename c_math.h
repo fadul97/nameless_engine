@@ -285,6 +285,7 @@ INLINE void vec3v_cross_product(Vec3 a, Vec3 b)
 	v->z = z;
 }
 
+// Return Vec3 from Vec4 x, y, z
 INLINE Vec3 vec3_from_vec4(Vec4 a)
 { return (Vec3){a.x, a.y, a.z}; }
 
@@ -368,6 +369,7 @@ INLINE Vec4 vec4_blue()
 // Return 'new' Vec4 b added to a
 INLINE Vec4 vec4_add(Vec4 a, Vec4 b)
 { return (Vec4){a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w}; }
+// { return (Vec4){a.x + b.x, a.y + b.y, a.z + b.z}; }
 
 // Return Vec4 a divided by scalar k
 INLINE Vec4 vec4_divide_by_scalar(Vec4 a, f32 k)
@@ -402,6 +404,15 @@ INLINE Vec4 mat4_mul_vec4(Mat4 m, Vec4 v) {
 // Return normalized Vec4 a
 INLINE Vec4 vec4_normalize(Vec4 a)
 { return vec4_divide_by_scalar(a, (f32)vec4_length(a)); }
+
+// Return normalized Vec4 a
+INLINE void vec4v_normalize(Vec4 *vector) {
+    const f32 length = vec4_length(*vector);
+    vector->x /= length;
+    vector->y /= length;
+    vector->z /= length;
+    vector->w /= length;
+}
 
 INLINE Vec4 vec4_from_vec3(Vec3 a)
 { return (Vec4){a.x, a.y, a.z, 1.0f}; }

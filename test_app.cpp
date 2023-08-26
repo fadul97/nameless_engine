@@ -95,61 +95,57 @@ void TestApp::update(f32 delta_time)
     if(input->is_key_down(KEY_S))
         translation.y++;
     if(input->is_key_down(KEY_D))
-        translation.x++;
+        translation.z++;
     if(input->is_key_down(KEY_A))
-        translation.x--;
+        translation.z--;
+    
+    Mat4 trans = mat4_identity();
+    trans = mat4_translation(vec3_create(0, 0, 16.0f));
 
-    std::vector<Triangle> vec_triangles_to_raster; 
+    Mat4 world = mat4_identity();
+    world = mat4_mul(mat_rotz, mat_rotx);
+    world = mat4_mul(world, trans);
+
+    std::vector<Triangle> vec_triangles_to_raster;
+
+    int n = 0;
 
     for(auto tri : cube.tris)
     {
         Triangle tri_projected;
-        Triangle tri_translated;
-        Triangle tri_rotated_z;
-        Triangle tri_rotated_zx;
         Triangle tri_transformed;
 
-        // Rotate in Z-Axis
-        tri_rotated_z.p[0] =  mat4_mult_vec4(mat_rotz, tri.p[0]);
-        tri_rotated_z.p[1] =  mat4_mult_vec4(mat_rotz, tri.p[1]);
-        tri_rotated_z.p[2] =  mat4_mult_vec4(mat_rotz, tri.p[2]);
+        // World Matrix Transform
+        tri_transformed.p[0] = mat4_mul_vec4(world, tri.p[0]);
+        tri_transformed.p[1] = mat4_mul_vec4(world, tri.p[1]);
+        tri_transformed.p[2] = mat4_mul_vec4(world, tri.p[2]);
 
-        // Rotate in X-Axis
-        tri_rotated_zx.p[0] =  mat4_mult_vec4(mat_rotx, tri_rotated_z.p[0]);
-        tri_rotated_zx.p[1] =  mat4_mult_vec4(mat_rotx, tri_rotated_z.p[1]);
-        tri_rotated_zx.p[2] =  mat4_mult_vec4(mat_rotx, tri_rotated_z.p[2]);
-
-        // Offset into the screen
-        tri_translated = tri_rotated_zx;
-        tri_translated.p[0].z = tri_rotated_zx.p[0].z + 8.0f;
-        tri_translated.p[1].z = tri_rotated_zx.p[1].z + 8.0f;
-        tri_translated.p[2].z = tri_rotated_zx.p[2].z + 8.0f;
+        // if(n >= 50)
+        //     exit(EXIT_SUCCESS);
 
         // Adding movement
-        tri_translated.p[0].x += translation.x * 2.0f * delta_time;
-        tri_translated.p[1].x += translation.x * 2.0f * delta_time;
-        tri_translated.p[2].x += translation.x * 2.0f * delta_time;
+        tri_transformed.p[0].z += translation.z * 10.0f * delta_time;
+        tri_transformed.p[1].z += translation.z * 10.0f * delta_time;
+        tri_transformed.p[2].z += translation.z * 10.0f * delta_time;
 
-        tri_translated.p[0].y += translation.y * 2.0f * delta_time;
-        tri_translated.p[1].y += translation.y * 2.0f * delta_time;
-        tri_translated.p[2].y += translation.y * 2.0f * delta_time;
+        // tri_translated.p[0].y += translation.y * 2.0f * delta_time;
+        // tri_translated.p[1].y += translation.y * 2.0f * delta_time;
+        // tri_translated.p[2].y += translation.y * 2.0f * delta_time;
 
+        // Calculate triangle Normal
         Vec3 normal;
         Vec3 line1;
         Vec3 line2;
 
-        line1.x = tri_translated.p[1].x - tri_translated.p[0].x;
-        line1.y = tri_translated.p[1].y - tri_translated.p[0].y;
-        line1.z = tri_translated.p[1].z - tri_translated.p[0].z;
+        // Get lines in either side of the triangle
+        line1 = vec3_from_vec4(vec4_minus(tri_transformed.p[1], tri_transformed.p[0]));
+        line2 = vec3_from_vec4(vec4_minus(tri_transformed.p[2], tri_transformed.p[0]));
 
-        line2.x = tri_translated.p[2].x - tri_translated.p[0].x;
-        line2.y = tri_translated.p[2].y - tri_translated.p[0].y;
-        line2.z = tri_translated.p[2].z - tri_translated.p[0].z;
-
+        // Cross product of lines to get the Normal to triangle surface
         normal = vec3_cross_product(line1, line2);
         normal = vec3_normalize(normal);
 
-        Vec3 camera_ray = vec3_minus(vec3_from_vec4(tri_translated.p[0]), camera);
+        Vec3 camera_ray = vec3_minus(vec3_from_vec4(tri_transformed.p[0]), camera);
 
         if(vec3_dot_product(normal, camera_ray) < 0.0f)
         {
@@ -161,14 +157,26 @@ void TestApp::update(f32 delta_time)
             mesh_color = adjust_brightness(original_color, dp);
 
             // Project triangles from 3D to 2D
-            tri_projected.p[0] =  mat4_mult_vec4(projection, tri_translated.p[0]);
-            tri_projected.p[1] =  mat4_mult_vec4(projection, tri_translated.p[1]);
-            tri_projected.p[2] =  mat4_mult_vec4(projection, tri_translated.p[2]);
+            tri_projected.p[0] =  mat4_mult_vec4(projection, tri_transformed.p[0]);
+            tri_projected.p[1] =  mat4_mult_vec4(projection, tri_transformed.p[1]);
+            tri_projected.p[2] =  mat4_mult_vec4(projection, tri_transformed.p[2]);
+
+            // Normalize coordinates
+            // tri_projected.p[0] =  vec4_normalize(tri_projected.p[0]);
+            // tri_projected.p[1] =  vec4_normalize(tri_projected.p[1]);
+            // tri_projected.p[2] =  vec4_normalize(tri_projected.p[2]);
+            // vec4_norm(&tri_projected.p[0]);
+            // vec4_norm(&tri_projected.p[1]);
+            // vec4_norm(&tri_projected.p[2]);
+            tri_projected.p[0] = vec4_divide_by_scalar(tri_projected.p[0], tri_projected.p[0].w);
+            tri_projected.p[1] = vec4_divide_by_scalar(tri_projected.p[1], tri_projected.p[1].w);
+            tri_projected.p[2] = vec4_divide_by_scalar(tri_projected.p[2], tri_projected.p[2].w);
 
             // Scale into view
-            tri_projected.p[0].x += 1.0f; tri_projected.p[0].y += 1.0f;
-            tri_projected.p[1].x += 1.0f; tri_projected.p[1].y += 1.0f;
-            tri_projected.p[2].x += 1.0f; tri_projected.p[2].y += 1.0f;
+            Vec4 offset_view = vec4_create(1, 1, 0, 0);
+            tri_projected.p[0] = vec4_add(tri_projected.p[0], offset_view);
+            tri_projected.p[1] = vec4_add(tri_projected.p[1], offset_view);
+            tri_projected.p[2] = vec4_add(tri_projected.p[2], offset_view);
             tri_projected.p[0].x *= 0.5f * (f32)800;
             tri_projected.p[0].y *= 0.5f * (f32)600;
             tri_projected.p[1].x *= 0.5f * (f32)800;
@@ -178,6 +186,8 @@ void TestApp::update(f32 delta_time)
 
             vec_triangles_to_raster.push_back(tri_projected);
         }
+
+        n++;
     }
 
     // Sort triangles from back to front
@@ -193,18 +203,18 @@ void TestApp::update(f32 delta_time)
     
     for(auto& tri_projected : vec_triangles_to_raster)
     {
-        // renderer->fill_triangle(
-        //     tri_projected.p[0].x, tri_projected.p[0].y,
-        //     tri_projected.p[1].x, tri_projected.p[1].y,
-        //     tri_projected.p[2].x, tri_projected.p[2].y,
-        //     mesh_color
-        // );
+        renderer->fill_triangle(
+            tri_projected.p[0].x, tri_projected.p[0].y,
+            tri_projected.p[1].x, tri_projected.p[1].y,
+            tri_projected.p[2].x, tri_projected.p[2].y,
+            mesh_color
+        );
 
         renderer->draw_triangle(
             tri_projected.p[0].x, tri_projected.p[0].y,
             tri_projected.p[1].x, tri_projected.p[1].y,
             tri_projected.p[2].x, tri_projected.p[2].y,
-            mesh_color
+            black
         );
     }
 }
