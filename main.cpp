@@ -1,8 +1,14 @@
 #include <iostream>
 #include "test_app.h"
 
+#include "logger.h"
+
 int main(int argc, char** argv)
 {
+    u32 e = 50;
+    Logger::log_output(LOG_LEVEL_ERROR, ERR_WINDOW, "Whatever %d", e);
+    std::cout << "E agora?\n";
+
     auto engine = new NamelessEngine(RENDERER_GLX);
     b8 result = engine->init("JOJ Engine", 800, 600);
     if(result != OK)
