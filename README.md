@@ -18,9 +18,10 @@ For now, I'm creating a basic foundation so I can start to build on top of.
 I just created files and added them into the same folder, but it is starting to get messy. I'm thinking about creating another repository for just the os abstractions and add to this repository using 'git submodule'.
 
 - [ ] Structure project using CMake
-- [ ] Create an abstract window class
+- [x] Create an abstract window class
 - [ ] Create an abstract input class
 - [ ] Create an abstract renderer class
+- [ ] Fix CMake modules
 
 Might edit these later.
 
